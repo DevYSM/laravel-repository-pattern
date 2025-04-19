@@ -29,8 +29,7 @@ return [
 ];
 ```
 
-**Note**: The `RepositoryServiceProvider` binding logic overwrites multiple bindings. Use contextual bindings as a
-workaround (see [Notes](#notes)).
+**Note**: The `RepositoryServiceProvider` doing auto binding for the model and repository.
 
 ## Artisan Commands
 
@@ -53,27 +52,28 @@ workaround (see [Notes](#notes)).
 ### RepositoryInterface / BaseRepository
 
 - `getAll(array $relations = [], string $orderBy = 'created_at', string $orderDir = 'DESC'): Collection`
-    - Get all records with optional relationships and sorting.
+
 - `paginate(int $perPage = 15, array $relations = [], string $orderBy = 'created_at', string $orderDir = 'DESC'): LengthAwarePaginator`
-    - Get paginated records with optional relationships and sorting.
+
 - `show($value, string $column = 'id'): ?Model`
-    - Get a record by value and column.
+
 - `create(array $data): Model`
-    - Create a new record.
+
 - `update($id, array $data): Model`
-    - Update a record by ID.
+
 - `delete($id): bool`
-    - Delete a record by ID (hard delete).
+
 - `with(array $relations): self`
-    - Load relationships for the query.
+
 - `attach($id, string $relation, array $relatedIds): void`
-    - Attach IDs to a many-to-many relationship.
+
 - `detach($id, string $relation, array $relatedIds): void`
-    - Detach IDs from a many-to-many relationship.
+
 - `sync($id, string $relation, array $relatedIds): void`
-    - Sync IDs for a many-to-many relationship.
+
 - `whereHas(string $relation, Closure $callback): self`
-    - Query records based on a relationship.
+-
+- `builder(): instance of model query builder`
 
 ### BaseService
 
