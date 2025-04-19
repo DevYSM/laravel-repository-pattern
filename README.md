@@ -45,6 +45,7 @@ workaround (see [Notes](#notes)).
 
   ```bash
   php artisan make:service ModelName
+  php artisan make:service ModelName --soft-deletes
   ```
 
 ## Methods
@@ -93,7 +94,7 @@ workaround (see [Notes](#notes)).
     - Permanently delete a soft-deleted record via repository.
 - `restore($id): bool`
     - Restore a soft-deleted record via repository.
- 
+
 ## License
 
 MIT
