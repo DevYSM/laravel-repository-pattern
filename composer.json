@@ -1,0 +1,38 @@
+{
+    "name": "ysm/laravel-repository-pattern",
+    "description": "A Laravel package implementing the Repository Design Pattern with Service Layer",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "php",
+        "repository",
+        "repository pattern",
+        "laravel",
+        "traits",
+        "generator",
+        "command"
+    ],
+    "autoload": {
+        "psr-4": {
+            "YSM\\RepositoryPattern\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Yassen Sayed",
+            "email": "devysm2019@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=5.4",
+        "illuminate/support": "^5.0|^6.0|^7.0|^8.0|^9.0|^10.0|^11.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "YSM\\RepositoryPattern\\RepositoryServiceProvider"
+            ]
+        }
+    }
+}

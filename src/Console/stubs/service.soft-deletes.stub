@@ -1,0 +1,17 @@
+<?php
+
+namespace DummyNamespace;
+
+DummyUsesTrait
+use YSM\RepositoryPattern\Services\BaseService;
+use YSM\RepositoryPattern\Contracts\RepositoryInterface;
+
+class DummyModelService extends BaseService
+{
+    DummyTrait
+
+    public function __construct(RepositoryInterface $repository)
+    {
+        parent::__construct($repository);
+    }
+}

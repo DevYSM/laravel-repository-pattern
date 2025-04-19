@@ -1,0 +1,17 @@
+<?php
+
+namespace DummyNamespace;
+
+DummyUsesTrait
+use YSM\RepositoryPattern\Repositories\BaseRepository;
+use App\Models\DummyModel;
+
+class DummyModelRepository extends BaseRepository
+{
+    DummyTrait
+
+    public function __construct(DummyModel $variableNameRepository)
+    {
+        parent::__construct($variableNameRepository);
+    }
+}
