@@ -51,28 +51,17 @@ return [
 
 ### RepositoryInterface / BaseRepository
 
-- `getAll(array $relations = [], string $orderBy = 'created_at', string $orderDir = 'DESC'): Collection`
-
-- `paginate(int $perPage = 15, array $relations = [], string $orderBy = 'created_at', string $orderDir = 'DESC'): LengthAwarePaginator`
-
-- `show($value, string $column = 'id'): ?Model`
-
+- `getAll($relations = [], $orderBy = 'created_at', $orderDir = 'DESC'): Collection`
+- `paginate($perPage = 15, $relations = [], $orderBy = 'created_at',$orderDir = 'DESC'): LengthAwarePaginator`
+- `show($value, $column = 'id'): ?Model`
 - `create(array $data): Model`
-
-- `update($id, array $data): Model`
-
+- `update($id, $data): Model`
 - `delete($id): bool`
-
-- `with(array $relations): self`
-
-- `attach($id, string $relation, array $relatedIds): void`
-
-- `detach($id, string $relation, array $relatedIds): void`
-
-- `sync($id, string $relation, array $relatedIds): void`
-
-- `whereHas(string $relation, Closure $callback): self`
--
+- `with( $relations): self`
+- `attach($id,$relation, $relatedIds): void`
+- `detach($id,$relation,$relatedIds): void`
+- `sync($id,$relation, $relatedIds): void`
+- `whereHas($relation, Closure $callback): self`
 - `builder(): instance of model query builder`
 
 ### BaseService
