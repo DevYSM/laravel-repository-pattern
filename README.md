@@ -51,18 +51,30 @@ return [
 
 ### RepositoryInterface / BaseRepository
 
-- `getAll($relations = [], $orderBy = 'created_at', $orderDir = 'DESC'): Collection`
-- `paginate($perPage = 15, $relations = [], $orderBy = 'created_at',$orderDir = 'DESC'): LengthAwarePaginator`
-- `show($value, $column = 'id'): ?Model`
-- `create(array $data): Model`
-- `update($id, $data): Model`
-- `delete($id): bool`
-- `with( $relations): self`
-- `attach($id,$relation, $relatedIds): void`
-- `detach($id,$relation,$relatedIds): void`
-- `sync($id,$relation, $relatedIds): void`
-- `whereHas($relation, Closure $callback): self`
-- `builder(): instance of model query builder`
+- `getAll($relations = [], $orderBy = 'created_at', $orderDir = 'DESC')`
+    - Get all records with optional relations and sorting.
+- `paginate($perPage = 15, $relations = [], $orderBy = 'created_at',$orderDir = 'DESC')`
+    - Paginate records with optional relations and sorting.
+- `show($value, $column = 'id')`
+    - Get a single record by ID or other column.
+- `create(array $data)`
+    - Create a new record.
+- `update($id, $data)`
+    - Update an existing record by ID.
+- `delete($id)`
+    - Soft delete a record by ID.
+- `with( $relations)`
+    - Specify relations to eager load.
+- `attach($id,$relation, $relatedIds)`
+    - Attach related records to a model.
+- `detach($id,$relation,$relatedIds)`
+    - Detach related records from a model.
+- `sync($id,$relation, $relatedIds)`
+    - Sync related records with a model.
+- `whereHas($relation, Closure $callback)`
+    - Filter records based on a related model's attributes.
+- `builder()`
+    - Get the underlying Eloquent query builder.
 
 ### BaseService
 
