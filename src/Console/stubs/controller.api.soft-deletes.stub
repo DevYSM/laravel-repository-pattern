@@ -17,14 +17,14 @@ class DummyModelController extends Controller
 
     public function index()
     {
-        $DummyModelPlural = $this->service->getAll();
-        return response()->json($DummyModelPlural);
+        $VariableModelPlural = $this->service->getAll();
+        return response()->json($VariableModelPlural);
     }
 
     public function paginated()
     {
-        $DummyModelPlural = $this->service->paginate(15);
-        return response()->json($DummyModelPlural);
+        $VariableModelPlural = $this->service->paginate(15);
+        return response()->json($VariableModelPlural);
     }
 
     public function show($id)
