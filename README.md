@@ -101,14 +101,6 @@ return [
 - `restore($id)`
     - Restore a soft-deleted record via repository.
 
-## Notes
-
-- **Compatibility**: Supports Laravel 5.x to 11.x. For Laravel 5.0–5.5 (PHP 5.4–7.1), remove type hints (
-  e.g., `: string`) and replace `\Str::plural` with `str_plural` in `MakeControllerCommand` if errors occur.
-- **Default Binding**: No fallback for unbound models. Consider adding a default repository or exception.
-- **Controller Directory**: Use `--dir=CustomDir` to place controllers in `App\Http\Controllers\CustomDir` (
-  e.g., `--dir=Admin`).
-
 ## License
 
 MIT
