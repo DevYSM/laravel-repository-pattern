@@ -1,0 +1,59 @@
+<?php
+
+namespace DummyNamespace;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Services\DummyServiceName;
+
+class DummyModelController extends Controller
+{
+    protected $service;
+
+    public function __construct(DummyServiceName $service)
+    {
+        $this->service = $service;
+    }
+
+    public function index()
+    {
+        $DummyModelPlural = $this->service->getAll();
+        return response()->json($DummyModelPlural);
+    }
+
+    public function paginated()
+    {
+        $DummyModelPlural = $this->service->paginate(15);
+        return response()->json($DummyModelPlural);
+    }
+
+    public function show($id)
+    {
+        $DummyModelVariable = $this->service->show($id);
+        return response()->json($DummyModelVariable);
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            // Add validation rules
+        ]);
+        $DummyModelVariable = $this->service->create($data);
+        return response()->json($DummyModelVariable, 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $data = $request->validate([
+            // Add validation rules
+        ]);
+        $DummyModelVariable = $this->service->update($id, $data);
+        return response()->json($DummyModelVariable);
+    }
+
+    public function destroy($id)
+    {
+        $this->service->delete($id);
+        return response()->json(['message' => 'DummyModel deleted']);
+    }
+}

@@ -29,8 +29,6 @@ return [
 ];
 ```
 
-**Note**: The `RepositoryServiceProvider` doing auto binding for the model and repository.
-
 ## Artisan Commands
 
 - **Generate a repository**:
@@ -44,57 +42,72 @@ return [
 
   ```bash
   php artisan make:service ModelName
-  php artisan make:service ModelName --soft-deletes
+  ```
+
+- **Generate a controller**:
+
+  ```bash
+  php artisan make:repository-controller ModelName [--type=api|web] [--dir=CustomDir] [--soft-deletes]
   ```
 
 ## Methods
 
 ### RepositoryInterface / BaseRepository
 
-- `getAll($relations = [], $orderBy = 'created_at', $orderDir = 'DESC')`
-    - Get all records with optional relations and sorting.
-- `paginate($perPage = 15, $relations = [], $orderBy = 'created_at',$orderDir = 'DESC')`
-    - Paginate records with optional relations and sorting.
-- `show($value, $column = 'id')`
-    - Get a single record by ID or other column.
+- `getAll(array $relations = [], string $orderBy = 'created_at', string $orderDir = 'DESC')`
+    - Get all records with optional relationships and sorting.
+- `paginate(int $perPage = 15, array $relations = [], string $orderBy = 'created_at', string $orderDir = 'DESC')`
+    - Get paginated records with optional relationships and sorting.
+- `show($value, string $column = 'id')`
+    - Get a record by value and column.
 - `create(array $data)`
     - Create a new record.
-- `update($id, $data)`
-    - Update an existing record by ID.
+- `update($id, array $data)`
+    - Update a record by ID.
 - `delete($id)`
-    - Soft delete a record by ID.
-- `with( $relations)`
-    - Specify relations to eager load.
-- `attach($id,$relation, $relatedIds)`
-    - Attach related records to a model.
-- `detach($id,$relation,$relatedIds)`
-    - Detach related records from a model.
-- `sync($id,$relation, $relatedIds)`
-    - Sync related records with a model.
-- `whereHas($relation, Closure $callback)`
-    - Filter records based on a related model's attributes.
-- `builder()`
-    - Get the underlying Eloquent query builder.
+    - Delete a record by ID (hard delete).
+- `with(array $relations)`
+    - Load relationships for the query.
+- `attach($id, string $relation, array $relatedIds)`
+    - Attach IDs to a many-to-many relationship.
+- `detach($id, string $relation, array $relatedIds)`
+    - Detach IDs from a many-to-many relationship.
+- `sync($id, string $relation, array $relatedIds)`
+    - Sync IDs for a many-to-many relationship.
+- `whereHas(string $relation, Closure $callback)`
+    - Query records based on a relationship.
 
 ### BaseService
 
 - Mirrors all `RepositoryInterface` methods, delegating to the repository.
-- `getRepository(): RepositoryInterface`
+- `getRepository()`
     - Get the underlying repository.
 
 ### InteractsRepoWithSoftDeletes (Repository Trait)
 
-- `permanentlyDelete($id): bool`
+- `softDelete($id)`
+    - Soft delete a record by ID.
+- `permanentlyDelete($id)`
     - Permanently delete a soft-deleted record.
-- `restore($id): bool`
+- `restore($id)`
     - Restore a soft-deleted record.
 
 ### InteractsServiceWithSoftDeletes (Service Trait)
 
-- `permanentlyDelete($id): bool`
+- `softDelete($id)`
+    - Soft delete a record via repository.
+- `permanentlyDelete($id)`
     - Permanently delete a soft-deleted record via repository.
-- `restore($id): bool`
+- `restore($id)`
     - Restore a soft-deleted record via repository.
+
+## Notes
+
+- **Compatibility**: Supports Laravel 5.x to 11.x. For Laravel 5.0–5.5 (PHP 5.4–7.1), remove type hints (
+  e.g., `: string`) and replace `\Str::plural` with `str_plural` in `MakeControllerCommand` if errors occur.
+- **Default Binding**: No fallback for unbound models. Consider adding a default repository or exception.
+- **Controller Directory**: Use `--dir=CustomDir` to place controllers in `App\Http\Controllers\CustomDir` (
+  e.g., `--dir=Admin`).
 
 ## License
 

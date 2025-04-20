@@ -1,0 +1,77 @@
+<?php
+
+namespace DummyNamespace;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Services\DummyServiceName;
+
+
+class DummyModelController extends Controller
+{
+    protected $service;
+
+    public function __construct(DummyServiceName $service)
+    {
+        $this->service = $service;
+    }
+
+    public function index()
+    {
+        $VariableModelPlural = $this->service->getAll();
+        return view('VariableModelPlural.index', compact('VariableModelPlural'));
+    }
+
+    public function paginated()
+    {
+        $VariableModelPlural = $this->service->paginate(15);
+        return view('VariableModelPlural.paginated', compact('VariableModelPlural'));
+    }
+
+    public function show($id)
+    {
+        $DummyModelVariable = $this->service->show($id);
+        return view('VariableModelPlural.show', compact('DummyModelVariable'));
+    }
+
+    public function create()
+    {
+        return view('VariableModelPlural.create');
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            // Add validation rules
+        ]);
+        $this->service->create($data);
+        return redirect()->route('VariableModelPlural.index')->with('success', 'DummyModel created');
+    }
+
+    public function edit($id)
+    {
+        $DummyModelVariable = $this->service->show($id);
+        return view('VariableModelPlural.edit', compact('DummyModelVariable'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $data = $request->validate([
+            // Add validation rules
+        ]);
+        $this->service->update($id, $data);
+        return redirect()->route('VariableModelPlural.index')->with('success', 'DummyModel updated');
+    }
+
+    public function destroy($id)
+    {
+        $this->service->softDelete($id);
+        return redirect()->route('VariableModelPlural.index')->with('success', 'DummyModel soft deleted');
+    }
+
+    public function restore($id)
+    {
+        $this->service->restore($id);
+        return redirect()->route('VariableModelPlural.index')->with('success', 'DummyModel restored');
+    }
+}

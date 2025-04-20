@@ -3,6 +3,7 @@
 namespace YSM\RepositoryPattern;
 
 use Illuminate\Support\ServiceProvider;
+use YSM\RepositoryPattern\Console\Commands\MakeControllerCommand;
 use YSM\RepositoryPattern\Console\Commands\MakeRepositoryCommand;
 use YSM\RepositoryPattern\Console\Commands\MakeServiceCommand;
 use YSM\RepositoryPattern\Contracts\RepositoryInterface;
@@ -39,6 +40,7 @@ class RepositoryServiceProvider extends ServiceProvider
             $this->commands([
                 MakeRepositoryCommand::class,
                 MakeServiceCommand::class,
+                MakeControllerCommand::class,
             ]);
         }
     }
