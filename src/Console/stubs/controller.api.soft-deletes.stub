@@ -29,8 +29,8 @@ class DummyModelController extends Controller
 
     public function show($id)
     {
-        $DummyModelVariable = $this->service->show($id);
-        return response()->json($DummyModelVariable);
+        $VariableModelPlural = $this->service->show($id);
+        return response()->json($VariableModelPlural);
     }
 
     public function store(Request $request)
@@ -38,8 +38,8 @@ class DummyModelController extends Controller
         $data = $request->validate([
             // Add validation rules
         ]);
-        $DummyModelVariable = $this->service->create($data);
-        return response()->json($DummyModelVariable, 201);
+        $VariableModelPlural = $this->service->create($data);
+        return response()->json($VariableModelPlural, 201);
     }
 
     public function update(Request $request, $id)
@@ -47,8 +47,8 @@ class DummyModelController extends Controller
         $data = $request->validate([
             // Add validation rules
         ]);
-        $DummyModelVariable = $this->service->update($id, $data);
-        return response()->json($DummyModelVariable);
+        $VariableModelPlural = $this->service->update($id, $data);
+        return response()->json($VariableModelPlural);
     }
 
     public function destroy($id)

@@ -29,8 +29,8 @@ class DummyModelController extends Controller
 
     public function show($id)
     {
-        $DummyModelVariable = $this->service->show($id);
-        return view('VariableModelPlural.show', compact('DummyModelVariable'));
+        $VariableModelPlural = $this->service->show($id);
+        return view('VariableModelPlural.show', compact('VariableModelPlural'));
     }
 
     public function create()
@@ -49,8 +49,8 @@ class DummyModelController extends Controller
 
     public function edit($id)
     {
-        $DummyModelVariable = $this->service->show($id);
-        return view('VariableModelPlural.edit', compact('DummyModelVariable'));
+        $VariableModelPlural = $this->service->show($id);
+        return view('VariableModelPlural.edit', compact('VariableModelPlural'));
     }
 
     public function update(Request $request, $id)
