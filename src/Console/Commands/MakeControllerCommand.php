@@ -270,19 +270,32 @@ class MakeControllerCommand extends GeneratorCommand
                     );
                 }
 
-                // Insert into `->withRouting(` closure
+                // Insert or append in `->withRouting(...)`
                 $content = preg_replace_callback(
-                    '/->withRouting\s*\((.*?)\)/s',
+                    '/->withRouting\s*\(\s*(\[.*?\])\s*\)/s',
                     function ($matches) use ($routeInclude) {
-                        $existing = $matches[1];
+                        $existingConfig = $matches[1];
 
-                        // If a `then:` already exists, don't duplicate
-                        if (Str::contains($existing, 'then:')) {
-                            return $matches[0]; // skip modifying
+                        // Check for existing "then: function"
+                        if (Str::contains($existingConfig, 'then: function')) {
+                            // Append to the existing closure body
+                            return preg_replace_callback(
+                                '/then:\s*function\s*\(\)\s*{(.*?)}/s',
+                                function ($innerMatches) use ($routeInclude) {
+                                    $body = rtrim($innerMatches[1]);
+                                    // Avoid duplicate insert
+                                    if (Str::contains($body, $routeInclude)) {
+                                        return $innerMatches[0]; // skip if already there
+                                    }
+                                    return "then: function () {\n        $body\n        $routeInclude\n    }";
+                                },
+                                $matches[0]
+                            );
+                        } else {
+                            // No then: block — insert new one
+                            $injected = $existingConfig . ",\n    then: function () {\n        $routeInclude\n    }";
+                            return str_replace($existingConfig, $injected, $matches[0]);
                         }
-
-                        $injected = $existing . ",\n    then: function () {\n        $routeInclude\n    }";
-                        return str_replace($matches[1], $injected, $matches[0]);
                     },
                     $content
                 );
