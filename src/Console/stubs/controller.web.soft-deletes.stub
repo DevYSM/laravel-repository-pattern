@@ -9,36 +9,72 @@ use App\Services\DummyServiceName;
 
 class DummyModelController extends Controller
 {
+    /**
+     * The service instance.
+     *
+     * @var \App\Services\DummyServiceName
+     */
     protected $service;
 
+    /**
+     * DummyModelController constructor.
+     *
+     * @param DummyServiceName $service
+     */
     public function __construct(DummyServiceName $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         $VariableModelPlural = $this->service->getAll();
         return view('VariableModelPlural.index', compact('VariableModelPlural'));
     }
 
+    /**
+     * Display a paginated listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function paginated()
     {
-        $VariableModelPlural = $this->service->paginate(15);
+        $VariableModelPlural = $this->service->paginate();
         return view('VariableModelPlural.paginated', compact('VariableModelPlural'));
     }
 
+    /**
+     * Display a listing of the resource with soft deleted items.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function show($id)
     {
         $VariableModelPlural = $this->service->show($id);
         return view('VariableModelPlural.show', compact('VariableModelPlural'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function create()
     {
         return view('VariableModelPlural.create');
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -48,12 +84,24 @@ class DummyModelController extends Controller
         return redirect()->route('VariableModelPlural.index')->with('success', 'DummyModel created');
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
     public function edit($id)
     {
         $VariableModelPlural = $this->service->show($id);
         return view('VariableModelPlural.edit', compact('VariableModelPlural'));
     }
-
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, $id)
     {
         $data = $request->validate([
@@ -63,12 +111,36 @@ class DummyModelController extends Controller
         return redirect()->route('VariableModelPlural.index')->with('success', 'DummyModel updated');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($id)
     {
-        $this->service->softDelete($id);
+        $this->service->delete($id);
         return redirect()->route('VariableModelPlural.index')->with('success', 'DummyModel soft deleted');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+   public function permanentlyDelete($id)
+   {
+        $this->service->permanentlyDelete($id);
+        return redirect()->route('VariableModelPlural.index')->with('success', 'DummyModel deleted permanently');
+   }
+
+    /**
+     * Restore the specified resource from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
     public function restore($id)
     {
         $this->service->restore($id);

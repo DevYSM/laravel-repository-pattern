@@ -1,0 +1,19 @@
+<?php
+
+use DummyControllerNamespace\DummyModelController;
+use Illuminate\Support\Facades\Route;
+
+
+// paginated
+Route::get('VariableModelPlural/paginated', [DummyModelController::class, 'paginated'])
+    ->name('VariableModelPlural.paginated');
+
+// Routes
+Route::apiResource('VariableModelPlural', DummyModelController::class)->parameters([
+    'VariableModelPlural' => 'id',
+]);
+
+// Soft delete routes
+Route::post('VariableModelPlural/{id}/restore', [DummyModelController::class, 'restore'])->name('VariableModelPlural.restore');
+Route::delete('VariableModelPlural/{id}/permanently-delete', [DummyModelController::class, 'permanentlyDelete'])->name('VariableModelPlural.permanently-delete');
+

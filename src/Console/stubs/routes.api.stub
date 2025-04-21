@@ -1,0 +1,13 @@
+<?php
+
+use DummyControllerNamespace\DummyModelController;
+use Illuminate\Support\Facades\Route;
+
+//paginated
+Route::get('VariableModelPlural/paginated', [DummyModelController::class, 'paginated'])
+    ->name('VariableModelPlural.paginated');
+
+// Routes
+Route::apiResource('VariableModelPlural', DummyModelController::class)->parameters([
+    'VariableModelPlural' => 'id',
+]);

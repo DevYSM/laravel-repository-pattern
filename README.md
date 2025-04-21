@@ -1,7 +1,8 @@
 # Laravel Repository Pattern
 
-A lightweight Laravel package implementing the repository pattern for clean database operations, supporting Eloquent
-relationships, sorting, and optional soft deletes. Compatible with Laravel 5.x to 11.x.
+A lightweight Laravel package implementing the Repository Design Pattern with a Service Layer for clean database
+operations, supporting Eloquent relationships, sorting, and optional soft deletes. Compatible with Laravel 8.0 to 12.0
+and PHP 8.0+.
 
 ## Installation
 
@@ -19,7 +20,7 @@ relationships, sorting, and optional soft deletes. Compatible with Laravel 5.x t
 
 ## Configuration
 
-Edit `config/repository-pattern.php` to define model-to-repository bindings:
+Edit `config/repository-pattern.php` to manually define model-to-repository bindings:
 
 ```php
 return [
@@ -34,20 +35,24 @@ return [
 - **Generate a repository**:
 
   ```bash
-  php artisan make:repository ModelName
-  php artisan make:repository ModelName --soft-deletes
+  php artisan make:repository ModelName [--soft-deletes]
   ```
 
 - **Generate a service**:
 
   ```bash
-  php artisan make:service ModelName
+  php artisan make:service ModelName [--soft-deletes]
   ```
 
 - **Generate a controller**:
 
   ```bash
-  php artisan make:repository-controller ModelName [--type=api|web] [--dir=CustomDir] [--soft-deletes]
+  php artisan make:repository-controller ModelName [--type=api|web] [--dir=CustomDir] [--soft-deletes] [--with-routes] [--with-rs]
+  --type=api|web: Specify controller type (default: api)
+  --dir=CustomDir: Custom controller and route directory (e.g., Api\Admin\v1)
+  --soft-deletes: Include soft delete methods
+  --with-routes: Generate and bind route file
+  --with-rs: Generate repository and service
   ```
 
 ## Methods
@@ -100,6 +105,23 @@ return [
     - Permanently delete a soft-deleted record via repository.
 - `restore($id)`
     - Restore a soft-deleted record via repository.
+
+## Notes
+
+- **Compatibility**: Requires Laravel 8.0–12.0 and PHP 8.0+. Ensure your project meets these requirements.
+- **Bindings**: Model-to-repository bindings must be manually added to `config/repository-pattern.php`. No default
+  binding exists for unbound models; consider adding a default repository or exception.
+- **Controller Directory**: Use `--dir=CustomDir` to place controllers in `App\Http\Controllers\CustomDir` (
+  e.g., `Api\Admin\v1`) and routes in `routes/CustomDir/`.
+- **Route Generation**: The `--with-routes` flag for `make:repository-controller` generates a route file
+  in `routes/api/`, `routes/web/`, or `routes/CustomDir/` (e.g., `routes/Api/Admin/v1/users.php`) and binds it
+  in `RouteServiceProvider`. Outputs “🎉 Routes created successfully!”.
+- **Repository and Service Generation**: The `--with-rs` flag for `make:repository-controller` generates corresponding
+  repository and service files, respecting `--soft-deletes`.
+- **Controller Overwrite**: The `make:repository-controller` command overwrites existing controllers, displaying “🎉
+  Controller [Name] (type) overwritten successfully.” or “🎉 Controller [Name] (type) created successfully.”
+- **Repository Overwrite**: The `make:repository` command overwrites existing repositories, displaying
+  “Repository [Name] overwritten successfully.” or “Repository [Name] created successfully.”
 
 ## License
 

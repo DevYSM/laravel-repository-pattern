@@ -2,7 +2,8 @@
 
 namespace YSM\RepositoryPattern\Traits;
 
-trait InteractsServiceWithSoftDeletes
+trait
+InteractsServiceWithSoftDeletes
 {
     /**
      * @param $id

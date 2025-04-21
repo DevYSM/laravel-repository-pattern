@@ -21,7 +21,16 @@ class MakeControllerCommand extends GeneratorCommand
     /**
      * @var string
      */
-    protected $type = 'Controller';
+    protected $type = '🎉 Controller';
+
+
+    /**
+     * @return string
+     */
+    protected function getNameInput(): string
+    {
+        return trim($this->argument('model')) . 'Controller';
+    }
 
     /**
      * @return string
@@ -57,27 +66,16 @@ class MakeControllerCommand extends GeneratorCommand
         } elseif (is_null($dir) && $type === 'web') {
             return $rootNamespace . '\Http\Controllers\Web';
         } else {
-            $dir = trim($dir, '/');
-            $dir = str_replace('/', '\\', $dir);
-            $dir = str_replace('\\', '/', $dir);
             return $rootNamespace . '\Http\Controllers\\' . $dir;
         }
-
-    }
-
-    /**
-     * @return string
-     */
-    protected function getNameInput(): string
-    {
-        return trim($this->argument('model')) . 'Controller';
     }
 
     /**
      * @param $stub
      * @param $name
      *
-     * @return $this|\YSM\RepositoryPattern\Console\Commands\MakeControllerCommand
+     * @return $this
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     protected function replaceNamespace(&$stub, $name): MakeControllerCommand
     {
@@ -88,6 +86,9 @@ class MakeControllerCommand extends GeneratorCommand
         $modelPlural = \Str::plural($modelVariable);
         $usesSoftDeletes = $this->option('soft-deletes') ? 'use YSM\\RepositoryPattern\\Traits\\InteractsServiceWithSoftDeletes;' : '';
         $withSoftDeletes = $this->option('soft-deletes') ? 'use InteractsServiceWithSoftDeletes;' : '';
+        $controllerNamespace = $this->getNamespace($name);
+        $controllerClass = class_basename($name);
+
         $stub = str_replace(
             [
                 'DummyNamespace',
@@ -100,7 +101,7 @@ class MakeControllerCommand extends GeneratorCommand
                 'DummyWithSoftDeletes'
             ],
             [
-                $this->getNamespace($name),
+                $controllerNamespace,
                 $modelNamespace,
                 $serviceNamespace,
                 $model,
@@ -112,7 +113,144 @@ class MakeControllerCommand extends GeneratorCommand
             $stub
         );
 
+        if ($this->option('with-routes')) {
+            $this->generateRouteFile($model, $modelPlural, $controllerNamespace, $controllerClass);
+            $this->updateRouteServiceProvider($model);
+            $this->info('🎉 Routes created successfully!');
+        }
+
+        if ($this->option('with-rs')) {
+
+            $this->call('make:repository', [
+                'model' => $model,
+                '--soft-deletes' => $this->option('soft-deletes'),
+            ]);
+            $this->call('make:service', [
+                'model' => $model,
+                '--soft-deletes' => $this->option('soft-deletes'),
+            ]);
+        }
+
+
         return $this;
+    }
+
+    /**
+     * @param $model
+     * @param $modelPlural
+     * @param $controllerNamespace
+     * @param $controllerClass
+     *
+     * @return void
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    protected function generateRouteFile($model, $modelPlural, $controllerNamespace, $controllerClass)
+    {
+        $type = $this->option('type') ?: 'api';
+        $softDeletes = $this->option('soft-deletes');
+        $dir = str_replace('\\', '/', $this->getDir());
+        if ($type === 'api') {
+            $stub = $this->files->get(
+                $softDeletes
+                    ? __DIR__ . '/../stubs/routes.api.soft-deletes.stub'
+                    : __DIR__ . '/../stubs/routes.api.stub'
+            );
+        } else {
+            $stub = $this->files->get(
+                $softDeletes
+                    ? __DIR__ . '/../stubs/routes.soft-deletes.stub'
+                    : __DIR__ . '/../stubs/routes.stub'
+            );
+        }
+
+
+        $stub = str_replace(
+            [
+                'DummyModel',
+                'VariableModelPlural',
+                'DummyControllerNamespace',
+                'DummyControllerClass',
+            ],
+            [
+                $model,
+                $modelPlural,
+                $controllerNamespace,
+                $controllerClass,
+            ],
+            $stub
+        );
+
+
+        $routeDir = base_path('routes/' . $dir);
+        if (!$this->files->exists($routeDir)) {
+            $this->files->makeDirectory($routeDir, 0755, true);
+        }
+
+        $model = strtolower($model);
+        $model = \Str::plural($model);
+
+        $this->files->put($routeDir . '/' . $model . '.php', $stub);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDir()
+    {
+        $baseDir = $this->option('dir');
+        $type = $this->option('type') ?: 'api';
+
+        if (is_null($baseDir) && $type === 'api') {
+            return 'api';
+        } elseif (is_null($baseDir) && $type === 'web') {
+            return 'web';
+        } else {
+            return strtolower($baseDir);
+        }
+    }
+
+    /**
+     * @param $model
+     *
+     * @return void
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    protected function updateRouteServiceProvider($model)
+    {
+        $providerPath = app_path('Providers/RouteServiceProvider.php');
+        $content = $this->files->get($providerPath);
+
+        $model = strtolower($model);
+        $model = \Str::plural($model);
+
+        $dir = str_replace('\\', '/', $this->getDir());
+
+
+        $routeInclude = $this->option('type') === 'api'
+            ? "Route::prefix('$dir')
+            ->middleware('api')
+            ->group(base_path('routes/{$dir}/{$model}.php'));"
+            : "Route::group(['prefix' => '{$dir}', 'name' => '{$dir}.'], base_path('routes/{$dir}/{$model}.php'));";
+
+        if (strpos($content, $routeInclude) === false) {
+            $insertPosition = strpos($content, '$this->routes(function () {');
+            if ($insertPosition !== false) {
+                $insertPosition = strpos($content, '{', $insertPosition) + 1;
+                $content = substr_replace($content, "\n            {$routeInclude}\n ", $insertPosition, 0);
+                $this->files->put($providerPath, $content);
+            }
+        }
+    }
+
+    /**
+     * @param $rawName
+     *
+     * @return bool
+     */
+    protected function alreadyExists($rawName): bool
+    {
+        // Always allow overwriting existing controllers
+        return false;
     }
 
     /**
@@ -134,6 +272,8 @@ class MakeControllerCommand extends GeneratorCommand
             ['type', 't', InputOption::VALUE_OPTIONAL, 'Controller type (api or web)', 'api'],
             ['dir', 'd', InputOption::VALUE_OPTIONAL, 'Controller directory'],
             ['soft-deletes', 's', InputOption::VALUE_NONE, 'Include soft delete methods'],
+            ['with-routes', 'r', InputOption::VALUE_NONE, 'Generate and bind route file'],
+            ['with-rs', 'rs', InputOption::VALUE_NONE, 'Generate repository and service'],
         ];
     }
 }

@@ -21,7 +21,7 @@ class MakeServiceCommand extends GeneratorCommand
     /**
      * @var string
      */
-    protected $type = 'Service';
+    protected $type = '🎉 Service';
 
     /**
      * @return string
@@ -32,6 +32,18 @@ class MakeServiceCommand extends GeneratorCommand
             ? __DIR__ . '/../stubs/service.soft-deletes.stub'
             : __DIR__ . '/../stubs/service.stub';
     }
+
+    /**
+     * @param $rawName
+     *
+     * @return bool
+     */
+    protected function alreadyExists($rawName): bool
+    {
+        // Always allow overwriting existing controllers
+        return false;
+    }
+
 
     /**
      * @return string
