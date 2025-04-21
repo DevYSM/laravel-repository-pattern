@@ -255,10 +255,10 @@ class MakeControllerCommand extends GeneratorCommand
         } else {
             // Laravel 11+: Update bootstrap/app.php
             $content = $this->files->get($bootstrapPath);
-            if (!str_contains($content, $routeInclude)) {
+            if (strpos($content, $routeInclude) === false) {
                 // Add use statement if not present
-                if (!str_contains($content, 'use Illuminate\Support\Facades\Route;')) {
-                    $routingFacades = str_replace(
+                if (strpos($content, 'use Illuminate\Support\Facades\Route;') === false) {
+                    $content = str_replace(
                         "<?php\n",
                         "<?php\n\nuse Illuminate\Support\Facades\Route;\n",
                         $content
@@ -270,7 +270,7 @@ class MakeControllerCommand extends GeneratorCommand
                     $insertPosition = strpos($content, ')', $insertPosition);
                     $content = substr_replace(
                         $content,
-                        "   then: function () {\n        $routeInclude\n    }",
+                        ", then: function () {\n        $routeInclude\n    }",
                         $insertPosition,
                         0
                     );
