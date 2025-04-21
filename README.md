@@ -35,13 +35,13 @@ return [
 - **Generate a repository**:
 
   ```bash
-  php artisan make:repository ModelName [--soft-deletes]
+  php artisan ysm:repository ModelName [--soft-deletes]
   ```
 
 - **Generate a service**:
 
   ```bash
-  php artisan make:service ModelName [--soft-deletes]
+  php artisan ysm:service ModelName [--soft-deletes]
   ```
 
 - **Generate a controller**:
@@ -120,7 +120,7 @@ return [
   repository and service files, respecting `--soft-deletes`.
 - **Controller Overwrite**: The `ysm:controller` command overwrites existing controllers, displaying “🎉
   Controller [Name] (type) overwritten successfully.” or “🎉 Controller [Name] (type) created successfully.”
-- **Repository Overwrite**: The `make:repository` command overwrites existing repositories, displaying
+- **Repository Overwrite**: The `ysm:repository` command overwrites existing repositories, displaying
   “Repository [Name] overwritten successfully.” or “Repository [Name] created successfully.”
 
 ## License

@@ -11,7 +11,7 @@ class MakeRepositoryCommand extends GeneratorCommand
     /**
      * @var string
      */
-    protected $name = 'make:repository';
+    protected $name = 'ysm:repository';
 
     /**
      * @var string

@@ -121,11 +121,11 @@ class MakeControllerCommand extends GeneratorCommand
 
         if ($this->option('with-rs')) {
 
-            $this->call('make:repository', [
+            $this->call('ysm:repository', [
                 'model' => $model,
                 '--soft-deletes' => $this->option('soft-deletes'),
             ]);
-            $this->call('make:service', [
+            $this->call('ysm:service', [
                 'model' => $model,
                 '--soft-deletes' => $this->option('soft-deletes'),
             ]);
@@ -218,7 +218,8 @@ class MakeControllerCommand extends GeneratorCommand
     protected function updateRouteServiceProvider($model)
     {
         $providerPath = app_path('Providers/RouteServiceProvider.php');
-        $content = $this->files->get($providerPath);
+        $bootstrapPath = base_path('bootstrap/app.php');
+
 
         $model = strtolower($model);
         $model = \Str::plural($model);
@@ -232,14 +233,43 @@ class MakeControllerCommand extends GeneratorCommand
             ->group(base_path('routes/{$dir}/{$model}.php'));"
             : "Route::group(['prefix' => '{$dir}', 'name' => '{$dir}.'], base_path('routes/{$dir}/{$model}.php'));";
 
-        if (strpos($content, $routeInclude) === false) {
-            $insertPosition = strpos($content, '$this->routes(function () {');
-            if ($insertPosition !== false) {
-                $insertPosition = strpos($content, '{', $insertPosition) + 1;
-                $content = substr_replace($content, "\n            {$routeInclude}\n ", $insertPosition, 0);
+        // Check if RouteServiceProvider exists (Laravel 8.0–10.x)
+        if ($this->files->exists($providerPath)) {
+            $content = $this->files->get($providerPath);
+            if (strpos($content, $routeInclude) === false) {
+                // Try Laravel 8+ routes() method
+                $insertPosition = strpos($content, '$this->routes(function () {');
+                if ($insertPosition !== false) {
+                    $insertPosition = strpos($content, '{', $insertPosition) + 1;
+                    $content = substr_replace($content, "\n            $routeInclude\n", $insertPosition, 0);
+                } else {
+                    // Fallback to boot() method
+                    $insertPosition = strpos($content, 'public function boot');
+                    if ($insertPosition !== false) {
+                        $insertPosition = strpos($content, '{', $insertPosition) + 1;
+                        $content = substr_replace($content, "\n        $routeInclude\n", $insertPosition, 0);
+                    }
+                }
                 $this->files->put($providerPath, $content);
             }
+        } else {
+            // Laravel 11+: Update bootstrap/app.php
+            $content = $this->files->get($bootstrapPath);
+            if (strpos($content, $routeInclude) === false) {
+                $insertPosition = strpos($content, '->withRouting(');
+                if ($insertPosition !== false) {
+                    $insertPosition = strpos($content, ')', $insertPosition);
+                    $content = substr_replace(
+                        $content,
+                        ", then: function () {\n        $routeInclude\n    }",
+                        $insertPosition,
+                        0
+                    );
+                    $this->files->put($bootstrapPath, $content);
+                }
+            }
         }
+
     }
 
     /**
