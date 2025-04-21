@@ -3,6 +3,7 @@
 namespace YSM\RepositoryPattern\Console\Commands;
 
 use Illuminate\Console\GeneratorCommand;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -210,75 +211,85 @@ class MakeControllerCommand extends GeneratorCommand
     }
 
     /**
-     * @param $model
+     * @param string $model
      *
      * @return void
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
-    protected function updateRouteServiceProvider($model)
+    protected function updateRouteServiceProvider(string $model): void
     {
         $providerPath = app_path('Providers/RouteServiceProvider.php');
         $bootstrapPath = base_path('bootstrap/app.php');
 
-
-        $model = strtolower($model);
-        $model = \Str::plural($model);
-
+        $modelSlug = Str::plural(Str::lower($model));
         $dir = str_replace('\\', '/', $this->getDir());
 
+        $isApi = $this->option('type') === 'api';
 
-        $routeInclude = $this->option('type') === 'api'
-            ? "Route::prefix('$dir')
-            ->middleware('api')
-            ->group(base_path('routes/{$dir}/{$model}.php'));"
-            : "Route::group(['prefix' => '{$dir}', 'name' => '{$dir}.'], base_path('routes/{$dir}/{$model}.php'));";
+        $routeInclude = $isApi
+            ? "Route::prefix('$dir')\n                ->middleware('api')\n                ->group(base_path('routes/{$dir}/{$modelSlug}.php'));"
+            : "Route::group(['prefix' => '{$dir}', 'name' => '{$dir}.'], base_path('routes/{$dir}/{$modelSlug}.php'));";
 
-        // Check if RouteServiceProvider exists (Laravel 8.0–10.x)
+        // Laravel 8–10: modify RouteServiceProvider
         if ($this->files->exists($providerPath)) {
             $content = $this->files->get($providerPath);
-            if (!str_contains($content, $routeInclude)) {
-                // Try Laravel 8+ routes() method
-                $insertPosition = strpos($content, '$this->routes(function () {');
-                if ($insertPosition !== false) {
-                    $insertPosition = strpos($content, '{', $insertPosition) + 1;
-                    $content = substr_replace($content, "\n            $routeInclude\n", $insertPosition, 0);
-                } else {
-                    // Fallback to boot() method
-                    $insertPosition = strpos($content, 'public function boot');
-                    if ($insertPosition !== false) {
-                        $insertPosition = strpos($content, '{', $insertPosition) + 1;
-                        $content = substr_replace($content, "\n        $routeInclude\n", $insertPosition, 0);
-                    }
-                }
-                $this->files->put($providerPath, $content);
-            }
-        } else {
-            // Laravel 11+: Update bootstrap/app.php
-            $content = $this->files->get($bootstrapPath);
-            if (strpos($content, $routeInclude) === false) {
-                // Add use statement if not present
-                if (strpos($content, 'use Illuminate\Support\Facades\Route;') === false) {
-                    $content = str_replace(
-                        "<?php\n",
-                        "<?php\n\nuse Illuminate\Support\Facades\Route;\n",
+
+            if (!Str::contains($content, $routeInclude)) {
+                if (Str::contains($content, '$this->routes(function ()')) {
+                    $content = preg_replace_callback(
+                        '/\$this->routes\(function\s*\(\)\s*{/',
+                        function ($matches) use ($routeInclude) {
+                            return $matches[0] . "\n            $routeInclude";
+                        },
+                        $content
+                    );
+                } elseif (Str::contains($content, 'public function boot')) {
+                    $content = preg_replace_callback(
+                        '/public function boot\([^\)]*\)\s*{/',
+                        function ($matches) use ($routeInclude) {
+                            return $matches[0] . "\n        $routeInclude";
+                        },
                         $content
                     );
                 }
-                // Add route registration
-                $insertPosition = strpos($content, '->withRouting(');
-                if ($insertPosition !== false) {
-                    $insertPosition = strpos($content, ')', $insertPosition);
-                    $content = substr_replace(
+
+                $this->files->put($providerPath, $content);
+            }
+        } // Laravel 11+: modify bootstrap/app.php
+        elseif ($this->files->exists($bootstrapPath)) {
+            $content = $this->files->get($bootstrapPath);
+
+            if (!Str::contains($content, $routeInclude)) {
+                // Ensure `use Route` is present
+                if (!Str::contains($content, 'use Illuminate\Support\Facades\Route;')) {
+                    $content = preg_replace(
+                        '/<\?php\s*/',
+                        "<?php\n\nuse Illuminate\Support\Facades\Route;\n",
                         $content,
-                        "   then: function () {\n        $routeInclude\n    }",
-                        $insertPosition,
-                        0
+                        1
                     );
-                    $this->files->put($bootstrapPath, $content);
                 }
+
+                // Insert into `->withRouting(` closure
+                $content = preg_replace_callback(
+                    '/->withRouting\s*\((.*?)\)/s',
+                    function ($matches) use ($routeInclude) {
+                        $existing = $matches[1];
+
+                        // If a `then:` already exists, don't duplicate
+                        if (Str::contains($existing, 'then:')) {
+                            return $matches[0]; // skip modifying
+                        }
+
+                        $injected = $existing . ",\n    then: function () {\n        $routeInclude\n    }";
+                        return str_replace($matches[1], $injected, $matches[0]);
+                    },
+                    $content
+                );
+
+                $this->files->put($bootstrapPath, $content);
             }
         }
-
     }
 
     /**
