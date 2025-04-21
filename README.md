@@ -47,7 +47,7 @@ return [
 - **Generate a controller**:
 
   ```bash
-  php artisan make:ysm:controller ModelName [--type=api|web] [--dir=CustomDir] [--soft-deletes] [--with-routes] [--with-rs]
+  php artisan ysm:controller ModelName [--type=api|web] [--dir=CustomDir] [--soft-deletes] [--with-routes] [--with-rs]
   --type=api|web: Specify controller type (default: api)
   --dir=CustomDir: Custom controller and route directory (e.g., Api\Admin\v1)
   --soft-deletes: Include soft delete methods
@@ -113,12 +113,12 @@ return [
   binding exists for unbound models; consider adding a default repository or exception.
 - **Controller Directory**: Use `--dir=CustomDir` to place controllers in `App\Http\Controllers\CustomDir` (
   e.g., `Api\Admin\v1`) and routes in `routes/CustomDir/`.
-- **Route Generation**: The `--with-routes` flag for `make:ysm:controller` generates a route file
+- **Route Generation**: The `--with-routes` flag for `ysm:controller` generates a route file
   in `routes/api/`, `routes/web/`, or `routes/CustomDir/` (e.g., `routes/Api/Admin/v1/users.php`) and binds it
   in `RouteServiceProvider`. Outputs “🎉 Routes created successfully!”.
-- **Repository and Service Generation**: The `--with-rs` flag for `make:ysm:controller` generates corresponding
+- **Repository and Service Generation**: The `--with-rs` flag for `ysm:controller` generates corresponding
   repository and service files, respecting `--soft-deletes`.
-- **Controller Overwrite**: The `make:ysm:controller` command overwrites existing controllers, displaying “🎉
+- **Controller Overwrite**: The `ysm:controller` command overwrites existing controllers, displaying “🎉
   Controller [Name] (type) overwritten successfully.” or “🎉 Controller [Name] (type) created successfully.”
 - **Repository Overwrite**: The `make:repository` command overwrites existing repositories, displaying
   “Repository [Name] overwritten successfully.” or “Repository [Name] created successfully.”

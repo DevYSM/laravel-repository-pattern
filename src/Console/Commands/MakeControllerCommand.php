@@ -11,7 +11,7 @@ class MakeControllerCommand extends GeneratorCommand
     /**
      * @var string
      */
-    protected $name = 'make:ysm:controller';
+    protected $name = 'ysm:controller';
 
     /**
      * @var string
