@@ -270,7 +270,7 @@ class MakeControllerCommand extends GeneratorCommand
                     $insertPosition = strpos($content, ')', $insertPosition);
                     $content = substr_replace(
                         $content,
-                        ", then: function () {\n        $routeInclude\n    }",
+                        "   then: function () {\n        $routeInclude\n    }",
                         $insertPosition,
                         0
                     );
