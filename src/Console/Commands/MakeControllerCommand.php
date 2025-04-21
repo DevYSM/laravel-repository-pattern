@@ -236,7 +236,7 @@ class MakeControllerCommand extends GeneratorCommand
         // Check if RouteServiceProvider exists (Laravel 8.0–10.x)
         if ($this->files->exists($providerPath)) {
             $content = $this->files->get($providerPath);
-            if (strpos($content, $routeInclude) === false) {
+            if (!str_contains($content, $routeInclude)) {
                 // Try Laravel 8+ routes() method
                 $insertPosition = strpos($content, '$this->routes(function () {');
                 if ($insertPosition !== false) {
@@ -255,13 +255,22 @@ class MakeControllerCommand extends GeneratorCommand
         } else {
             // Laravel 11+: Update bootstrap/app.php
             $content = $this->files->get($bootstrapPath);
-            if (strpos($content, $routeInclude) === false) {
+            if (!str_contains($content, $routeInclude)) {
+                // Add use statement if not present
+                if (!str_contains($content, 'use Illuminate\Support\Facades\Route;')) {
+                    $routingFacades = str_replace(
+                        "<?php\n",
+                        "<?php\n\nuse Illuminate\Support\Facades\Route;\n",
+                        $content
+                    );
+                }
+                // Add route registration
                 $insertPosition = strpos($content, '->withRouting(');
                 if ($insertPosition !== false) {
                     $insertPosition = strpos($content, ')', $insertPosition);
                     $content = substr_replace(
                         $content,
-                        ", then: function () {\n        $routeInclude\n    }",
+                        "   then: function () {\n        $routeInclude\n    }",
                         $insertPosition,
                         0
                     );
